@@ -783,6 +783,46 @@ class Test(unittest.TestCase):
             )
             self.assertEqual(True, udev.UDEV._cid_matches_tid(tid, cid, ifaces), msg='Test Case RDMA-3 failed')
 
+            ##############################################
+            # SS
+            cid = {
+                'transport': 'ss',
+                'traddr': '10.150.0.17',
+                'trsvcid': '250',
+                'subsysnqn': 'hello',
+                'host-traddr': '10.150.0.19',
+                'host-iface': '',
+                'src-addr': '',
+                'hostnqn': '',
+            }
+            tid = trid.TID(
+                {
+                    'transport': 'ss',
+                    'traddr': '10.150.0.17',
+                    'subsysnqn': 'hello',
+                    'host-traddr': '10.150.0.19',
+                    'hostnqn': '',
+                }
+            )
+            self.assertEqual(True, udev.UDEV._cid_matches_tid(tid, cid, ifaces), msg='Test Case SS-1 failed')
+
+            tid = trid.TID(
+                {
+                    'transport': 'ss',
+                    'traddr': '10.150.0.17',
+                    'subsysnqn': 'hello',
+                    'host-traddr': '10.150.0.20',
+                    'hostnqn': '',
+                }
+            )
+            self.assertEqual(False, udev.UDEV._cid_matches_tid(tid, cid, ifaces), msg='Test Case SS-2 failed')
+
+            tid = trid.TID({'transport': 'ss', 'traddr': '10.150.0.17', 'subsysnqn': 'hello', 'hostnqn': ''})
+            self.assertEqual(True, udev.UDEV._cid_matches_tid(tid, cid, ifaces), msg='Test Case SS-3 failed')
+
+            tid = trid.TID({'transport': 'ss', 'traddr': '10.150.0.18', 'subsysnqn': 'hello', 'hostnqn': ''})
+            self.assertEqual(False, udev.UDEV._cid_matches_tid(tid, cid, ifaces), msg='Test Case SS-4 failed')
+
     def test_get_attributes_missing_attr(self):
         # /dev/null exists but has no NVMe-specific attributes; asstring() raises
         # for each requested attr → the except branch at line 114 is hit for both.

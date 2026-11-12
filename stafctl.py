@@ -127,7 +127,7 @@ PRSR.add_argument(
     metavar='<trtype>',
     action='store',
     help='NVMe-over-Fabrics fabric type (default: "%(default)s")',
-    choices=['tcp', 'rdma', 'fc', 'loop'],
+    choices=['tcp', 'rdma', 'fc', 'ss', 'loop'],
     default='tcp',
 )
 PRSR.add_argument(
@@ -143,7 +143,7 @@ PRSR.add_argument(
     '--trsvcid',
     metavar='<trsvcid>',
     action='store',
-    help='Transport service id (for IP addressing, e.g. tcp, rdma, this field is the port number)',
+    help='Transport service id (for IP addressing, e.g. tcp, rdma, ss, this field is the port number)',
     required=True,
 )
 PRSR.add_argument(

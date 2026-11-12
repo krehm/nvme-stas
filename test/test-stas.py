@@ -254,6 +254,16 @@ class TestRemoveInvalidAddresses(unittest.TestCase):
         t = self._make_tid('rdma', '192.168.0.1')
         self.assertEqual(stas.remove_invalid_addresses([t]), [t])
 
+    def test_ss_with_valid_ipv4_kept(self):
+        conf.SvcConf().set_conf_file(self.FNAME_BOTH)
+        t = self._make_tid('ss', '10.150.0.17')
+        self.assertEqual(stas.remove_invalid_addresses([t]), [t])
+
+    def test_ss_with_invalid_address_removed(self):
+        conf.SvcConf().set_conf_file(self.FNAME_BOTH)
+        t = self._make_tid('ss', 'not-an-ip-address')
+        self.assertEqual(stas.remove_invalid_addresses([t]), [])
+
     def test_fc_transport_always_kept_regardless_of_ip_family(self):
         conf.SvcConf().set_conf_file(self.FNAME_IPV4)
         t = self._make_tid('fc', 'nn-0x1000000044001123:pn-0x2000000055001123')

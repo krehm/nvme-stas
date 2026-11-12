@@ -49,7 +49,7 @@ def _get_loaded_nvmet_modules():
     for line in lines:
         if 'nvmet_' in line:
             module = line.split()[0]
-            for end in ('loop', 'tcp', 'fc', 'rdma'):
+            for end in ('loop', 'tcp', 'fc', 'rdma', 'ss'):
                 if module.endswith(end):
                     output.append(module)
                     break
@@ -245,7 +245,7 @@ def create(args):
     _modprobe('nvmet')
     trtypes = {port.get('trtype') for port in ports if port.get('trtype') is not None}
     for trtype in trtypes:
-        if trtype in ('tcp', 'fc', 'rdma'):
+        if trtype in ('tcp', 'fc', 'rdma', 'ss'):
             _modprobe(f'nvmet_{trtype}')
         elif trtype == 'loop':
             _modprobe('nvmet_loop')

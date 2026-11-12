@@ -85,7 +85,7 @@ def remove_invalid_addresses(controllers: list):
     service_conf = conf.SvcConf()
     valid_controllers = list()
     for controller in controllers:
-        if controller.transport in ('tcp', 'rdma'):
+        if controller.transport in ('tcp', 'rdma', 'ss'):
             # Let's make sure that traddr is
             # syntactically a valid IPv4 or IPv6 address. A target listening
             # on the IPv6 wildcard reports its IPv4 addresses in IPv4-mapped

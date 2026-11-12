@@ -16,7 +16,17 @@ from staslib import conf, iputil
 # usedforsecurity was added to hashlib.md5 in Python 3.9. Pass it when available
 # to suppress FIPS-mode rejection of MD5 (used here as a non-cryptographic hash).
 # Using **_MD5_KWARGS avoids a static 3.9-only kwarg that would break older Python.
-_MD5_KWARGS = {'usedforsecurity': False} if 'usedforsecurity' in inspect.signature(hashlib.md5).parameters else {}
+def _md5_kwargs() -> dict:
+    try:
+        if 'usedforsecurity' in inspect.signature(hashlib.md5).parameters:
+            return {'usedforsecurity': False}
+    except (ValueError, TypeError):
+        # Python 3.6 cannot introspect the OpenSSL builtin md5
+        pass
+    return {}
+
+
+_MD5_KWARGS = _md5_kwargs()
 
 
 def _hostid_from_hostnqn(hostnqn: str) -> str:
@@ -75,7 +85,9 @@ class TID:
     '''Transport Identifier'''
 
     RDMA_IP_PORT = '4420'
+    SS_PORT = '250'
     DISC_IP_PORT = '8009'
+    DEFAULT_PORTS = {'rdma': RDMA_IP_PORT, 'ss': SS_PORT}
 
     def __init__(self, cid: dict):
         '''Construct a TID from a controller identifier dict with the following keys:
@@ -130,11 +142,9 @@ class TID:
         self._traddr_as_given = cid.get('traddr', '')
         self._traddr = self._canonical_address(self._traddr_as_given)
         self._trsvcid = ''
-        if self._transport in ('tcp', 'rdma'):
+        if self._transport in ('tcp', 'rdma', 'ss'):
             trsvcid = cid.get('trsvcid', None)
-            self._trsvcid = (
-                trsvcid if trsvcid else (TID.RDMA_IP_PORT if self._transport == 'rdma' else TID.DISC_IP_PORT)
-            )
+            self._trsvcid = trsvcid if trsvcid else TID.DEFAULT_PORTS.get(self._transport, TID.DISC_IP_PORT)
         self._host_traddr = self._canonical_address(cid.get('host-traddr', ''))
         self._host_iface = '' if conf.SvcConf().ignore_iface else cid.get('host-iface', '')
         self._hostnqn, self._hostid, hostsymname = _host_identity(cid)
@@ -168,9 +178,9 @@ class TID:
         self._id = '(' + ', '.join(parts) + ')'
 
     def _canonical_address(self, addr: str) -> str:
-        '''Return addr in canonical form if it is an IP address. Only TCP and
-        RDMA addresses are IP addresses; FC's are WWNs.'''
-        return iputil.canonical_ipaddress(addr) if self._transport in ('tcp', 'rdma') else addr
+        '''Return addr in canonical form if it is an IP address. Only TCP, RDMA
+        and SS addresses are IP addresses; FC's are WWNs.'''
+        return iputil.canonical_ipaddress(addr) if self._transport in ('tcp', 'rdma', 'ss') else addr
 
     host_traddr = property(lambda self: self._host_traddr)
     host_iface = property(lambda self: self._host_iface)

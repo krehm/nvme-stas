@@ -180,7 +180,7 @@ class NameResolver:
                 callback(controllers_out)
 
         for controller in controllers_in:
-            if controller.transport in ('tcp', 'rdma'):
+            if controller.transport in ('tcp', 'rdma', 'ss'):
                 hostname_or_addr = controller.traddr
                 if not hostname_or_addr:
                     logging.error('Invalid traddr: %s', controller)

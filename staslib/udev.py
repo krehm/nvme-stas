@@ -291,7 +291,7 @@ class Udev:
         if tid.subsysnqn not in (defs.WELL_KNOWN_DISC_NQN, cid['subsysnqn']):
             return False
 
-        if tid.transport in ('tcp', 'rdma'):
+        if tid.transport in ('tcp', 'rdma', 'ss'):
             # Need to convert to ipaddress objects to properly
             # handle all variations of IPv6 addresses.
             tid_traddr = iputil.get_ipaddress_obj(tid.traddr, ipv4_mapped_convert=True)
@@ -337,8 +337,8 @@ class Udev:
             if tid.host_traddr.lower() != cid['host-traddr'].lower():
                 return False
 
-        elif tid.transport == 'rdma':
-            # host-traddr is optional for RDMA and is expressed as an IP address.
+        elif tid.transport in ('rdma', 'ss'):
+            # host-traddr is optional for RDMA and SS and is expressed as an IP address.
             if tid.host_traddr:
                 tid_host_traddr = iputil.get_ipaddress_obj(tid.host_traddr, ipv4_mapped_convert=True)
                 cid_host_traddr = iputil.get_ipaddress_obj(cid['host-traddr'], ipv4_mapped_convert=True)

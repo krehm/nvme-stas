@@ -45,6 +45,16 @@ class Test(unittest.TestCase):
         self.tid = trid.TID(self.cid)
         self.other_tid = trid.TID(self.other_cid)
 
+    def test_ss_default_trsvcid_and_canonical_address(self):
+        '''SS uses port 250 by default and its traddr is an IP address'''
+        tid = trid.TID({'transport': 'ss', 'traddr': '10.150.0.17', 'subsysnqn': Test.SUBSYSNQN})
+        self.assertEqual(tid.trsvcid, '250')
+        self.assertEqual(tid.traddr, '10.150.0.17')
+        tid = trid.TID({'transport': 'ss', 'traddr': '10.150.0.17', 'trsvcid': '251', 'subsysnqn': Test.SUBSYSNQN})
+        self.assertEqual(tid.trsvcid, '251')
+        tid = trid.TID({'transport': 'ss', 'traddr': '::ffff:10.150.0.17', 'subsysnqn': Test.SUBSYSNQN})
+        self.assertEqual(tid.traddr, trid.TID({'transport': 'ss', 'traddr': '10.150.0.17', 'subsysnqn': Test.SUBSYSNQN}).traddr)
+
     def test_hash(self):
         '''Check that a hash exists'''
         self.assertIsInstance(self.tid._hash, int)
